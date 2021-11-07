@@ -4,36 +4,38 @@ WEIGHT = 1.0
 
 
 class Node:
-    def __init__(self, data, level=0, f_value=0, lastMove=''):
+    def __init__(self, data, level=0, f_value=0, prevAction=[]):
         """ 
         Initialize the node with the data, level of the node and the calculated fvalue 
         """
         self.data = data  # might be array or 2d array
         self.level = level
         self.f_value = f_value
-        self.lastMove = lastMove
+        self.prevAction = prevAction
 
     def generate_child(self):
         """
         Generate all child nodes with possible moves.
         """
         x, y = self.find(self.data, '0')  # might have to change from char to int
-        pos_values = [[x, y - 1,"D"], [x, y + 1, "U"], [x - 1, y, "L"], [x + 1, y, "R"]] # DULR
+        pos_values = [[x, y - 1, "L"], [x, y + 1, "R"], [x - 1, y, "U"], [x + 1, y, "D"]]  # DULR
         children = []
         for i in pos_values:
             child_data = self.move_tile(self.data, x, y, i[0], i[1])
             if child_data is not None:  # if the move is possible
+                # child_node = Node(child_data, self.level + 1, 0, i[2])
                 child_node = Node(child_data, self.level + 1, 0)
-                child_node.lastMove = (i[2]) 
+                # print(i[2] + "\n")
+                # child_node.lastMove += i[2]
                 children.append(child_node)
+            child_node.prevAction.append(i[2])
         return children
-
-
 
     def move_tile(self, puzzle_data, x1, y1, x2, y2):
         """
         Move the blank space in the given direction and if the position value are out
-            of limits the return None """
+            of limits the return None
+        """
         if x2 >= 0 and x2 < len(self.data) and y2 >= 0 and y2 < len(self.data):
             holder = []
             holder = self.copy(puzzle_data)
@@ -76,7 +78,7 @@ class Puzzle:
         self.frontier = []
         self.reached = []
         self.nodes_generated = 1
-        self.moves = []
+        # self.moves = moves
 
     def evalFunc(self, current, goal):
         """
@@ -102,16 +104,10 @@ class Puzzle:
         input: Node, Node
         Accept Start and Goal Puzzle state
         """
-        # print("Enter the start state matrix: \n")
-        # start = self.readFile()
-        # print("Enter the goal state matrix: \n")
-        # goal = self.readFile()
 
         start = Node(initialArray)
         goal = Node(goalArray)
         start.f_value = self.evalFunc(start, goal)
-
-        # initialState.f_value = self.evalFunc(initialState, goalState)
 
         """ Put the start node in the open list"""
         self.frontier.append(start)
@@ -135,14 +131,15 @@ class Puzzle:
                 ii.f_value = self.evalFunc(ii, goal)
                 self.frontier.append(ii)
                 self.nodes_generated += 1
+
             self.reached.append(currState)
-            self.moves.append(currState.lastMove)
+
+
             del self.frontier[0]
 
             """ sort the open list based on f value """
             self.frontier.sort(key=lambda x: x.f_value, reverse=False)
 
-        
     def writeOutput(self, start_data, currState):
         filename = input("Enter output file name: ")
         with open(filename, "w") as f:
@@ -163,8 +160,11 @@ class Puzzle:
             f.write(str(WEIGHT) + "\n")
             f.write((str(currState.level)) + "\n")
             f.write((str(self.nodes_generated)) + "\n")
-            f.write(" ".join(self.moves) + "\n")
-            #f.write(self.moves())
+            # for move in self.moves:
+            #     f.write(move)
+            # f.write(currState.lastMove)
+            for action in currState.prevAction:
+                f.write(action+" ")
 
 
 def readFile(fname):  # to read the input and set up initial and goal state objects
@@ -183,15 +183,12 @@ def readFile(fname):  # to read the input and set up initial and goal state obje
         return initialArray, goalArray
 
 
-
-        
-
 def main():
     # global WEIGHT
     # f = input("Enter input file name: ")
-    #f = "test_dude.txt"
+    # f = "test_dude.txt"
     f = 'Sample_Input.txt'
-    #f = "correct_test.txt"
+    # f = "correct_test.txt"
     initialArray, goalArray = readFile(f)
     # WEIGHT = input("Please enter a valid weight: ")
     puzzle = Puzzle()
