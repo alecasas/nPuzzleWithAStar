@@ -26,39 +26,39 @@ class Node:
                 children.append(child_node)
         return children
 
-        def move_tile(self, puzzle_data, x1, y1, x2, y2):
-            """ Move the blank space in the given direction and if the position value are out
-                of limits the return None """
-            if x2 >= 0 and x2 < len(self.data) and y2 >= 0 and y2 < len(self.data):
-                holder = []
-                holder = self.copy(puzzle_data)
-                temp = holder[x2][y2]
-                holder[x2][y2] = holder[x1][y1]
-                holder[x1][y1] = temp
-                return holder
-            else:
-                return None
+    def move_tile(self, puzzle_data, x1, y1, x2, y2):
+        """ Move the blank space in the given direction and if the position value are out
+            of limits the return None """
+        if x2 >= 0 and x2 < len(self.data) and y2 >= 0 and y2 < len(self.data):
+            holder = []
+            holder = self.copy(puzzle_data)
+            temp = holder[x2][y2]
+            holder[x2][y2] = holder[x1][y1]
+            holder[x1][y1] = temp
+            return holder
+        else:
+            return None
 
-        def find(self, puzzle_data, x):
-            """
-            Returns the position int,int of where 0 is located
-            """
-            for i in range(0, len(self.data)):
-                for j in range(0, len(self.data)):
-                    if puzzle_data[i][j] == x:
-                        return i, j
+    def find(self, puzzle_data, x):
+        """
+        Returns the position int,int of where 0 is located
+        """
+        for i in range(0, len(self.data)):
+            for j in range(0, len(self.data)):
+                if puzzle_data[i][j] == x:
+                    return i, j
 
-        def copy(self, root):
-            """
-            Copy function to create a similar matrix of the given node
-            """
-            temp = []
-            for i in root:
-                t = []
-                for j in i:
-                    t.append(j)
-                temp.append(t)
-            return temp
+    def copy(self, root):
+        """
+        Copy function to create a similar matrix of the given node
+        """
+        temp = []
+        for i in root:
+            t = []
+            for j in i:
+                t.append(j)
+            temp.append(t)
+        return temp
 
 
 class Puzzle:
@@ -84,8 +84,8 @@ class Puzzle:
         Calculates the different between the given puzzles
         """
         res = 0
-        for i in range(0, self.n):
-            for j in range(0, self.n):
+        for i in range(0, ROW):
+            for j in range(0, COL):
                 if current[i][j] != goal[i][j] and current[i][j] != 0:
                     res += 1
         return res
@@ -130,7 +130,7 @@ class Puzzle:
             del self.frontier[0]
 
             """ sort the open list based on f value """
-            self.frontier.sort(key=lambda x: x.f_val, reverse=False)
+            self.frontier.sort(key=lambda x: x.f_value, reverse=False)
 
 
 def readFile(fname):  # to read the input and set up initial and goal state objects
@@ -139,25 +139,20 @@ def readFile(fname):  # to read the input and set up initial and goal state obje
         goalArray = []
 
         for i in range(ROW):  # reading input matrix
-            for num in f.readline().split():  # reading line by line and creating list of numbers in that line
-                initialArray.append(int(num))
+            initialArray.append(f.readline().strip('\n').split(" "))
 
         f.readline()  # skipping the empty line between 2 matrices
 
         for i in range(ROW):  # reading output matrix
-            for num in f.readline().split():  # reading line by line and creating list of numbers in that line
-                goalArray.append(int(num))
-#
-#         initialState = Node(initialArray)
-#         goalState = Node(goalArray)
-#
-#         return initialState, goalState
+            goalArray.append(f.readline().strip('\n').split(" "))
+
         return initialArray, goalArray
 
 
 def main():
     # global WEIGHT
-    f = input("Enter input file name: ")
+    # f = input("Enter input file name: ")
+    f = 'Sample_Input.txt'
     initialArray, goalArray = readFile(f)
     # WEIGHT = input("Please enter a valid weight: ")
     puzzle = Puzzle()
