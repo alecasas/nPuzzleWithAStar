@@ -4,30 +4,35 @@ WEIGHT = 1.0
 
 
 class Node:
-    def __init__(self, data, level=0, f_value=0):
+    def __init__(self, data, level=0, f_value=0, lastMove=''):
         """ 
         Initialize the node with the data, level of the node and the calculated fvalue 
         """
         self.data = data  # might be array or 2d array
         self.level = level
         self.f_value = f_value
+        self.lastMove = lastMove
 
     def generate_child(self):
         """
         Generate all child nodes with possible moves.
         """
         x, y = self.find(self.data, '0')  # might have to change from char to int
-        pos_values = [[x, y - 1], [x, y + 1], [x - 1, y], [x + 1, y]]
+        pos_values = [[x, y - 1,"D"], [x, y + 1, "U"], [x - 1, y, "L"], [x + 1, y, "R"]] # DULR
         children = []
         for i in pos_values:
             child_data = self.move_tile(self.data, x, y, i[0], i[1])
             if child_data is not None:  # if the move is possible
                 child_node = Node(child_data, self.level + 1, 0)
+                child_node.lastMove = (i[2]) 
                 children.append(child_node)
         return children
 
+
+
     def move_tile(self, puzzle_data, x1, y1, x2, y2):
-        """ Move the blank space in the given direction and if the position value are out
+        """
+        Move the blank space in the given direction and if the position value are out
             of limits the return None """
         if x2 >= 0 and x2 < len(self.data) and y2 >= 0 and y2 < len(self.data):
             holder = []
@@ -70,6 +75,8 @@ class Puzzle:
         self.n = size
         self.frontier = []
         self.reached = []
+        self.nodes_generated = 1
+        self.moves = []
 
     def evalFunc(self, current, goal):
         """
@@ -122,15 +129,42 @@ class Puzzle:
                 print("")
             """ If the difference between current and goal node is 0 we have reached the goal node"""
             if self.manhattanDis(currState.data, goal.data) == 0:
+                self.writeOutput(start.data, currState)
                 break
             for ii in currState.generate_child():
                 ii.f_value = self.evalFunc(ii, goal)
                 self.frontier.append(ii)
+                self.nodes_generated += 1
             self.reached.append(currState)
+            self.moves.append(currState.lastMove)
             del self.frontier[0]
 
             """ sort the open list based on f value """
             self.frontier.sort(key=lambda x: x.f_value, reverse=False)
+
+        
+    def writeOutput(self, start_data, currState):
+        filename = input("Enter output file name: ")
+        with open(filename, "w") as f:
+            for ii in start_data:
+                temp = " ".join(ii)
+                temp = temp + "\n"
+                f.write(temp)
+
+            f.write("\n")
+
+            for ii in currState.data:
+                temp = " ".join(ii)
+                temp = temp + "\n"
+                f.write(temp)
+
+            f.write("\n")
+
+            f.write(str(WEIGHT) + "\n")
+            f.write((str(currState.level)) + "\n")
+            f.write((str(self.nodes_generated)) + "\n")
+            f.write(" ".join(self.moves) + "\n")
+            #f.write(self.moves())
 
 
 def readFile(fname):  # to read the input and set up initial and goal state objects
@@ -149,10 +183,15 @@ def readFile(fname):  # to read the input and set up initial and goal state obje
         return initialArray, goalArray
 
 
+
+        
+
 def main():
     # global WEIGHT
     # f = input("Enter input file name: ")
+    #f = "test_dude.txt"
     f = 'Sample_Input.txt'
+    #f = "correct_test.txt"
     initialArray, goalArray = readFile(f)
     # WEIGHT = input("Please enter a valid weight: ")
     puzzle = Puzzle()
