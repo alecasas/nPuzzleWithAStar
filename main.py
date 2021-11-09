@@ -124,7 +124,7 @@ class Puzzle:
         start.evalFunc(goal)
         """ Put the start node in the open list"""
         self.frontier.append(start)
-        #print("\n\n")
+        self.reached.append(start)
         while True:
             currState = self.frontier[0]
             print("")
@@ -137,21 +137,39 @@ class Puzzle:
                 for jj in ii:
                     print(jj, end=" ")
                 print("") 
-            """ 
-            If the difference between current and goal node is 0 we have reached the goal node
             """
             if currState.manhattanDis(goal) == 0:
+                #If the difference between current and goal node is 0 we have reached the goal node
+                self.writeOutput(start.data, currState)
+                break
+                """
+            if currState.data == goal.data:
                 self.writeOutput(start.data, currState)
                 break
             for ii in currState.generate_child():
                 ii.evalFunc(goal)
-                self.frontier.append(ii)
-                self.nodes_generated += 1
+                if not self.isInReached(ii):
+                    self.frontier.append(ii)
+                    self.nodes_generated += 1
             self.reached.append(currState)
+            #sort currState by manh
             del self.frontier[0]
+           
             """ sort the open list based on f value """
             #sorted by level too, found repeated nodes
-            self.frontier.sort(key=lambda x: (x.f_value, x.level) , reverse=False)
+            #self.frontier.sort(key=lambda x: (x.f_value, x.level) , reverse=False)
+            self.frontier.sort(key=lambda x: (x.f_value) , reverse=False)
+
+    def isInReached(self, currNode):
+        """
+        check if currNode is in self.reached
+        """
+        for tempNode in self.reached:
+            if tempNode.data == currNode.data:
+                return True
+        return False
+
+
 
     def writeOutput(self, start_data, currState):
         filename = input("Enter output file name: ")
@@ -198,13 +216,13 @@ def readFile(fname):  # to read the input and set up initial and goal state obje
 
 
 def main():
-    # global WEIGHT
+    global WEIGHT
     f = input("Enter input file name: ")
     # f = "test_dude.txt"
     #f = 'Sample_Input.txt'
     # f = "correct_test.txt"
     initialArray, goalArray = readFile(f)
-    WEIGHT = input("Please enter a valid weight: ")
+    WEIGHT = float(input("Please enter a valid weight: "))
     puzzle = Puzzle()
     puzzle.process(initialArray, goalArray)
 
