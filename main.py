@@ -4,7 +4,7 @@ WEIGHT = 1.0
 
 
 class Node:
-    def __init__(self, data, level=0, f_value=0, prevAction = [] ):
+    def __init__(self, data, level=0, f_value=0, prevAction = []):
         """ 
         Initialize the node with the data, level of the node and the calculated fvalue 
         """
@@ -55,7 +55,7 @@ class Node:
         Calculate f(n) = W*h(n) + g(n)
         Assigns f(n) to self.f_value
         writes f value to list to keep track
-        returns dereferenced f_value, -1 if failed
+        returns f value of the node
         """
         self.f_value = ( WEIGHT * self.manhattanDis(goal)) + self.level
         self.prevValues += [self.f_value]
@@ -69,7 +69,7 @@ class Node:
         returns manhattan distance
         """
         dist = 0
-        for i in range(12): 
+        for i in range(ROW * COL): 
             if i != 0:
                 currx, curry = self.find(str(i))
                 goalx, goaly = goal.find(str(i))
@@ -80,13 +80,13 @@ class Node:
     #def find(self, puzzle_data, x):
     def find(self, x):
         """
-        Returns the position int,int of where 0 is located
+        Returns the indexes int,int of where any tile is located
         """
-        for i in range(0, len(self.data)):
-            for j in range(0, len(self.data)):
+        for i in range(0, ROW):
+            for j in range(0, COL):
                 if self.data[i][j] == x:
                     return i, j
-        return 100,100
+        return 10000,100000
 
     def copy(self, root):
         """
@@ -127,7 +127,7 @@ class Puzzle:
         #print("\n\n")
         while True:
             currState = self.frontier[0]
-            """ print("")
+            print("")
             print("  | ")
             print("  | ")
             print(" \\\'/ \n")
@@ -136,8 +136,10 @@ class Puzzle:
             for ii in currState.data:
                 for jj in ii:
                     print(jj, end=" ")
-                print("") """
-            """ If the difference between current and goal node is 0 we have reached the goal node"""
+                print("") 
+            """ 
+            If the difference between current and goal node is 0 we have reached the goal node
+            """
             if currState.manhattanDis(goal) == 0:
                 self.writeOutput(start.data, currState)
                 break
@@ -148,7 +150,8 @@ class Puzzle:
             self.reached.append(currState)
             del self.frontier[0]
             """ sort the open list based on f value """
-            self.frontier.sort(key=lambda x: x.f_value, reverse=False)
+            #sorted by level too, found repeated nodes
+            self.frontier.sort(key=lambda x: (x.f_value, x.level) , reverse=False)
 
     def writeOutput(self, start_data, currState):
         filename = input("Enter output file name: ")
@@ -174,8 +177,8 @@ class Puzzle:
             for ii in reversed(currState.prevAction):
                 f.write(str(ii) + " ")
             f.write("\n")
-            for ii in reversed(currState.prevValues):
-                f.write(str(ii) + " ")
+            for jj in currState.prevValues:
+                f.write(str(jj) + " ")
 
 
 def readFile(fname):  # to read the input and set up initial and goal state objects
