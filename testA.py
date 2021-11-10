@@ -50,7 +50,7 @@ class Node:
 
     def evalFunc(self, goal):
         """
-        input: Goal node
+        input: Node
         Calculate f(n) = W*h(n) + g(n)
         Assigns f(n) to self.f_value
         writes f value to list to keep track
@@ -62,7 +62,7 @@ class Node:
 
     def manhattanDis(self, goal):
         """
-        input: GOAL NODE
+        input: NODE
         Calculates the different between the given puzzles
         returns manhattan distance
         """
@@ -110,30 +110,36 @@ class Puzzle:
         startNode = Node(initialArray)
         goalNode = Node(goalArray)
 
+        # calculate the initial state's evaluation function
         startNode.evalFunc(goalNode)
         self.frontier.append(startNode)
+
         goal_found = False
         while not goal_found:
             currNode = self.frontier.pop(0)
+            # reached should only contain the data of previously expanded nodes
             self.reached.append(currNode.data)
 
+            # goal node has been reached...
             if currNode.data == goalNode.data:
-                # goal node has been reached...
                 self.writeOutput(startNode, currNode)
                 goal_found = True
+
+            # generate the children of current node
             for child in currNode.generate_child():
-                child.evalFunc(goalNode)  # calculates f_value
-                # check if it already exists in reached
+                child.evalFunc(goalNode)  # calculates f_value of the child
+
+                # check that child node's data has not been previously reached
                 if child.data not in self.reached:
                     # check if it is valid to add to frontier
-                    if self.addToFrontier(child):  # if self.addToFrontier(child) == True
+                    if self.addToFrontier(child):
                         self.frontier.append(child)
                         self.nodesGenerated += 1
             self.frontier.sort(key=lambda x: x.f_value, reverse=False)
 
     def addToFrontier(self, childNode):
         """
-        check if currNode is in self.reached
+        check if currNode can be added to the frontier
         """
         for nodeGenerated in self.frontier:
             if childNode == nodeGenerated and childNode.f_value >= nodeGenerated.f_value:
