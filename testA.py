@@ -19,6 +19,7 @@ class Node:
         Generate all child nodes with possible moves.
         return a list of all generated children
         """
+
         x, y = self.find('0')  # might have to change from char to int
         pos_values = [[x, y - 1, "L"], [x, y + 1, "R"], [x - 1, y, "U"], [x + 1, y, "D"]]  # DULR
         children = []
@@ -37,7 +38,7 @@ class Node:
         Move the blank space in the given direction and if the position value are out
             of limits the return None
         """
-        if 0 <= x2 < len(self.data) and 0 <= y2 < len(self.data):
+        if 0 <= x2 < len(self.data) and 0 <= y2 <= len(self.data):
             holder = []
             holder = self.copy(puzzle_data)
             temp = holder[x2][y2]
@@ -105,28 +106,29 @@ class Puzzle:
         self.nodesGenerated = 1
 
     def aStar(self, initialArray, goalArray):
+        # import pdb; pdb.set_trace()
         startNode = Node(initialArray)
         goalNode = Node(goalArray)
 
+        startNode.evalFunc(goalNode)
         self.frontier.append(startNode)
-        while len(self.frontier) > 0:
+        goal_found = False
+        while not goal_found:
             currNode = self.frontier.pop(0)
-            self.reached.append(currNode)
-            # self.frontier.sort(currNode.f_value, reverse=False)
+            self.reached.append(currNode.data)
 
             if currNode.data == goalNode.data:
                 # goal node has been reached...
                 self.writeOutput(startNode, currNode)
-                break
+                goal_found = True
             for child in currNode.generate_child():
                 child.evalFunc(goalNode)  # calculates f_value
                 # check if it already exists in reached
-                if child in self.reached:
-                    continue
-                # check if it is valid to add to frontier
-                if self.addToFrontier(child):  # if self.addToFrontier(child) == True
-                    self.frontier.append(child)
-                    self.nodesGenerated += 1
+                if child.data not in self.reached:
+                    # check if it is valid to add to frontier
+                    if self.addToFrontier(child):  # if self.addToFrontier(child) == True
+                        self.frontier.append(child)
+                        self.nodesGenerated += 1
             self.frontier.sort(key=lambda x: x.f_value, reverse=False)
 
     def addToFrontier(self, childNode):
