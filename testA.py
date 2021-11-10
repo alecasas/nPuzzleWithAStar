@@ -1,3 +1,9 @@
+"""
+11-Puzzle Solver
+By: Alexandra Casas and Jimena Gonzalez-Cotera Castro
+"""
+
+
 ROW = 3
 COL = 4
 WEIGHT = 1
@@ -20,8 +26,9 @@ class Node:
         return a list of all generated children
         """
 
-        x, y = self.find('0')  # might have to change from char to int
-        pos_values = [[x, y - 1, "L"], [x, y + 1, "R"], [x - 1, y, "U"], [x + 1, y, "D"]]  # DULR
+        x, y = self.find('0')
+        # 4 possible actions: Left, Right, Up, Down
+        pos_values = [[x, y - 1, "L"], [x, y + 1, "R"], [x - 1, y, "U"], [x + 1, y, "D"]]
         children = []
         for i in pos_values:
             child_data = self.move_tile(self.data, x, y, i[0], i[1])
@@ -39,7 +46,6 @@ class Node:
             of limits the return None
         """
         if 0 <= x2 < len(self.data) and 0 <= y2 <= len(self.data):
-            holder = []
             holder = self.copy(puzzle_data)
             temp = holder[x2][y2]
             holder[x2][y2] = holder[x1][y1]
@@ -69,10 +75,10 @@ class Node:
         dist = 0
         for i in range(ROW * COL):
             if i != 0:
-                currx, curry = self.find(str(i))
-                goalx, goaly = goal.find(str(i))
-                dist += abs(goalx - currx)
-                dist += abs(goaly - curry)
+                currX, currY = self.find(str(i))
+                goalX, goalY = goal.find(str(i))
+                dist += abs(goalX - currX)
+                dist += abs(goalY - currY)
         return dist
 
     def find(self, x):
@@ -173,7 +179,8 @@ class Puzzle:
                 f.write(str(jj) + " ")
 
 
-def readFile(filename):  # to read the input and set up initial and goal state objects
+# to read the input and set up initial and goal state objects
+def readFile(filename):
     with open(filename, "r") as f:
         initialArray = []
         goalArray = []
