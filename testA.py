@@ -116,7 +116,7 @@ class Puzzle:
 
             if currNode.data == goalNode.data:
                 # goal node has been reached...
-                self.writeOutput(startNode.data, currNode.data)
+                self.writeOutput(startNode, currNode)
                 break
             for child in currNode.generate_child():
                 child.evalFunc(goalNode)  # calculates f_value
@@ -138,17 +138,17 @@ class Puzzle:
                 return False
         return True
 
-    def writeOutput(self, start_data, currState):
+    def writeOutput(self, startNode, currNode):
         filename = input("Enter output file name: ")
         with open(filename, "w") as f:
-            for ii in start_data:
+            for ii in startNode.data:
                 temp = " ".join(ii)
                 temp = temp + "\n"
                 f.write(temp)
 
             f.write("\n")
 
-            for ii in currState.data:
+            for ii in currNode.data:
                 temp = " ".join(ii)
                 temp = temp + "\n"
                 f.write(temp)
@@ -156,12 +156,12 @@ class Puzzle:
             f.write("\n")
 
             f.write(str(WEIGHT) + "\n")
-            f.write((str(currState.level)) + "\n")
-            f.write((str(self.nodes_generated)) + "\n")
-            for ii in reversed(currState.prevAction):
+            f.write((str(currNode.level)) + "\n")
+            f.write((str(self.nodesGenerated)) + "\n")
+            for ii in reversed(currNode.prevAction):
                 f.write(str(ii) + " ")
             f.write("\n")
-            for jj in currState.prevValues:
+            for jj in currNode.prevValues:
                 f.write(str(jj) + " ")
 
 
